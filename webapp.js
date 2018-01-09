@@ -8,7 +8,7 @@ const accumulate = (o,kv)=> {
 };
 const parseBody = text=> text && text.split('&').map(toKeyValue).reduce(accumulate,{}) || {};
 let redirect = function(path){
-  console.log(`redirecting to ${path}`);
+  // console.log(`redirecting to ${path}`);
   this.statusCode = 302;
   this.setHeader('location',path);
   this.end();
@@ -47,7 +47,7 @@ let urlIsOneOf = function(urls){
   return urls.includes(this.url);
 }
 const main = function(req,res){
-  console.log(req.headers);
+  // console.log(req.headers);
   res.redirect = redirect.bind(res);
   req.urlIsOneOf = urlIsOneOf.bind(req);
   req.cookies = parseCookies(req.headers.cookie||'');
