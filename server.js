@@ -9,89 +9,6 @@ const commentsFile=require(pathOfCommentsFile);
 
 let app = WebApp.create();
 
-
-//
-// const requestHandler=function(req,res){
-
-//   setHeader(req,extensionOfFile,res,file);
-//   // console.log(`${req.method} ${req.url}`);
-//   if(req.url=='/comment')
-//     return getComments(res,req);
-//     res.end();
-//   }else if(req.url=='/guestBook.html'){
-//     return readingGuestBook(res);
-//     res.end();
-//   } else if(req.url=='/'){
-//     res.writeHead(302,{
-//       'location':'/index.html'
-//     });
-//   }else{
-//     return pageFound(res,req);
-//     res.end();
-//   }
-//   res.end();
-// };
-//
-
-//
-// const pageFound=function(res,req){
-//   if(fs.existsSync(defaultDirectory+req.url)){
-//     fs.readFile((defaultDirectory+req.url),(err,data)=>{
-//       if(err) return;
-//       res.write(data);
-//       res.end();
-//     });
-//   } else{
-//     return pageNotFound(res);
-//   };
-// };
-//
-// const pageNotFound=function(res){
-//   res.statusCode=404;
-//   res.write('Page not found');
-//   res.end();
-// };
-//
-// const getComments=function(res,req){
-//   req.on('data',data=>{
-//     let query={};
-//     let arrayOfComments=data.toString().split('&');
-//     query['fname']=arrayOfComments[0].split('=')[1].replace(/\+/g,' ');
-//     query['comment']=arrayOfComments[1].split('=')[1].replace(/\+/g,' ');
-//     storingComments(query,commentsFile);
-//   });
-//   res.writeHead(302,{
-//     'location':'/guestBook.html'
-//   });
-//   res.end();
-// };
-//
-// const readingGuestBook=function(res){
-//   fs.readFile((defaultDirectory+'/guestBook.html'),(err,data)=>{
-//     if(err) return;
-//     res.write(data+displayComments());
-//     res.end();
-//   });
-// };
-//
-// const storingComments=function(query){
-//   let dateOfComment=new Date();
-//   let date=dateOfComment.toLocaleDateString();
-//   let time=dateOfComment.toLocaleTimeString();
-//   let name=query.fname;
-//   let comment=query.comment;
-//   commentsFile.unshift(`<p style="font-size:20px";> ${date}, ${time},
-//   Name: ${name}, Comment: ${comment}</p>`);
-//   fs.writeFile(pathOfCommentsFile,JSON.stringify(commentsFile),err=>{
-//     if(err) return;
-//   });
-// };
-//
-// const displayComments=function(){
-//   let readComments=commentsFile.join('\n');
-//   return readComments;
-// };
-
 const setHeader=function(req,res){
   let file=".."+req.url;
   let extensionOfFile=file.slice(file.lastIndexOf("."));
@@ -112,6 +29,7 @@ const doesExist=req=>{
 }
 
 const serveFile=function(req,res){
+  if(req.url=='/') req.url='/index.html';
   if(doesExist(req)){
     setHeader(req,res);
     res.write(fs.readFileSync(defaultDirectory+req.url));
