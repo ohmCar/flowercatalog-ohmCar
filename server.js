@@ -66,6 +66,10 @@ app.use(loadUser);
 app.use(serveFile);
 
 app.get('/login',(req,res)=>{
+  if(req.user){
+    res.redirect("/guestBook.html");
+    return;
+  }
   res.setHeader('Content-type','text/html');
   res.write(
     `<form method="post">
@@ -77,6 +81,11 @@ app.get('/login',(req,res)=>{
 });
 
 app.post('/login',(req,res)=>{
+  if(req.user){
+    getComments(req,res);
+    res.redirect("/guestBook.html");
+    return;
+  }
   let user = registeredUsers.find(u=>u.userName==req.body.userName);
   if(!user){
     res.setHeader('Set-Cookie',`logInFailed=true`);
