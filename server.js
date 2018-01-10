@@ -8,7 +8,7 @@ const WebApp = require('./webapp.js');
 const commentsFile=require(pathOfCommentsFile);
 
 let app = WebApp.create();
-let registeredUsers=['omkar'];
+let registeredUsers=[{userName:'omkar'}];
 
 const setHeader=function(req,res){
   let file=".."+req.url;
@@ -25,6 +25,14 @@ const header={
   ".pdf":"text/pdf"
 };
 
+const getComments=(req,res)=>{
+  if(req.body.fname){
+    req.body.dateTime=new Date().toLocaleString();
+    commentsFile.unshift(req.body);
+    fs.writeFileSync(pathOfCommentsFile,JSON.stringify(commentsFile,null,2));
+  }
+};
+
 const doesExist=req=>{
   return fs.existsSync(defaultDirectory+req.url);
 }
@@ -34,15 +42,31 @@ const serveFile=function(req,res){
   if(doesExist(req)){
     setHeader(req,res);
     res.write(fs.readFileSync(defaultDirectory+req.url));
+    if(req.url=='/guestBook.html'){
+      if(req.user){
+        res.write(`loggedin as ${req.user.userName}`);
+      }
+      commentsFile.forEach(comment=>{
+        res.write(`<p style="font-size:20px;">${comment.dateTime}, Name: ${comment.fname}, comment: ${comment.comment}</p>`);
+      });
+    }
     res.end();
   }
 }
 
+let loadUser = (req,res)=>{
+  let sessionid = req.cookies.sessionid;
+  let user = registeredUsers.find(u=>u.sessionid==sessionid);
+  if(sessionid && user){
+    req.user = user;
+  }
+};
+
+app.use(loadUser);
 app.use(serveFile);
 
 app.get('/login',(req,res)=>{
   res.setHeader('Content-type','text/html');
-  if(req.cookies.logInFailed) res.write('<p>logIn Failed</p>');
   res.write(
     `<form method="post">
     Username: <input type="text" name="userName">
@@ -53,13 +77,15 @@ app.get('/login',(req,res)=>{
 });
 
 app.post('/login',(req,res)=>{
-  let user = registeredUsers.includes(req.body.userName);
+  let user = registeredUsers.find(u=>u.userName==req.body.userName);
   if(!user){
     res.setHeader('Set-Cookie',`logInFailed=true`);
     res.redirect('/login');
     return;
   }
-  res.setHeader('Set-Cookie',`logInFailed=false`);
+  let sessionid = new Date().getTime();
+  res.setHeader('Set-Cookie',`sessionid=${sessionid}`);
+  user.sessionid = sessionid;
   res.redirect('/guestBook.html');
 });
 
