@@ -39,17 +39,29 @@ const doesExist=req=>{
 
 const serveFile=function(req,res){
   if(req.url=='/') req.url='/index.html';
+
+  if(req.url=='/guestBook.html'){
+    setHeader(req,res);
+    if(req.user){
+      res.write(`loggedin as ${req.user.userName}`);
+      res.write(fs.readFileSync(defaultDirectory+req.url));
+    } else {
+      res.write(fs.readFileSync(defaultDirectory+'/guestbookWithoutLoggedin.html'));
+    }
+    commentsFile.forEach(comment=>{
+      res.write(
+        `<p style="font-size:20px;">${comment.dateTime},
+        Name: ${comment.fname},
+        comment: ${comment.comment}</p>`
+      );
+    });
+    res.end();
+    return;
+  }
+
   if(doesExist(req)){
     setHeader(req,res);
     res.write(fs.readFileSync(defaultDirectory+req.url));
-    if(req.url=='/guestBook.html'){
-      if(req.user){
-        res.write(`loggedin as ${req.user.userName}`);
-      }
-      commentsFile.forEach(comment=>{
-        res.write(`<p style="font-size:20px;">${comment.dateTime}, Name: ${comment.fname}, comment: ${comment.comment}</p>`);
-      });
-    }
     res.end();
   }
 }
@@ -96,6 +108,15 @@ app.post('/login',(req,res)=>{
   res.setHeader('Set-Cookie',`sessionid=${sessionid}`);
   user.sessionid = sessionid;
   res.redirect('/guestBook.html');
+});
+
+app.get('/logout',(req,res)=>{
+  if(req.user){
+    res.setHeader('Set-Cookie',[`loginFailed=false,Expires=${new Date(1).toUTCString()}`,`sessionid=0,Expires=${new Date(1).toUTCString()}`]);
+    delete req.user.sessionid;
+    delete req.user.userName;
+  }
+  res.redirect('/login');
 });
 
 const PORT=8001;
