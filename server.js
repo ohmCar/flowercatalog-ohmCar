@@ -27,6 +27,8 @@ const header={
 
 const getComments=(req,res)=>{
   if(req.body.fname){
+    req.body.fname=req.body.fname.replace(/\+/g,' ');
+    req.body.comment=req.body.comment.replace(/\+/g,' ');
     req.body.dateTime=new Date().toLocaleString();
     commentsFile.unshift(req.body);
     fs.writeFileSync(pathOfCommentsFile,JSON.stringify(commentsFile,null,2));
