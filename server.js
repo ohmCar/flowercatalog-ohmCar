@@ -100,6 +100,7 @@ app.post('/login',(req,res)=>{
     res.redirect("/guestBook.html");
     return;
   }
+  console.log(registeredUsers);
   let user = registeredUsers.find(u=>u.userName==req.body.userName);
   if(!user){
     res.setHeader('Set-Cookie',`logInFailed=true`);
@@ -116,7 +117,6 @@ app.get('/logout',(req,res)=>{
   if(req.user){
     res.setHeader('Set-Cookie',[`loginFailed=false,Expires=${new Date(1).toUTCString()}`,`sessionid=0,Expires=${new Date(1).toUTCString()}`]);
     delete req.user.sessionid;
-    delete req.user.userName;
   }
   res.redirect('/login');
 });
