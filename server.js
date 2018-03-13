@@ -121,7 +121,7 @@ app.get('/logout',(req,res)=>{
   res.redirect('/login');
 });
 
-const PORT=8001;
+const PORT = process.env.PORT || 8001;
 const server=http.createServer(app);
 server.listen(PORT);
 console.log(`listening to the port ${PORT}`);
